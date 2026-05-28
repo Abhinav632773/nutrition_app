@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String     @id @default(cuid())
+  clerkId           String     @unique
+  email             String     @unique
+  firstName         String?
+  lastName          String?
+  profileImage      String?
+  age               Int?
+  gender            String?
+  height            Float?
+  currentWeight     Float?
+  goalWeight        Float?
+  activityLevel     String?
+  fitnessGoal       String?
+  dailyCalorieGoal  Int?
+  proteinGoal       Float?
+  carbGoal          Float?
+  fatGoal           Float?
+  waterIntakeGoal   Float?
+  streakDays        Int        @default(0)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  meals             Meal[]
+  weightLogs        WeightLog[]
+  dailyGoals        DailyGoal[]
+  aiInsights        AIInsight[]
+  achievements      Achievement[]
+  mealReminders     MealReminder[]
+  chatHistory       ChatMessage[]
+
+  @@index([clerkId])
+  @@index([email])
+}
+
+model Meal {
+  id                String     @id @default(cuid())
+  userId            String
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mealType          String
+  date              DateTime
+  totalCalories     Float      @default(0)
+  totalProtein      Float      @default(0)
+  totalCarbs        Float      @default(0)
+  totalFat          Float      @default(0)
+  totalFiber        Float      @default(0)
+  totalSugar        Float      @default(0)
+  totalSodium       Float      @default(0)
+  totalPotassium    Float      @default(0)
+  totalMagnesium    Float      @default(0)
+  totalCalcium      Float      @default(0)
+  totalIron         Float      @default(0)
+  totalZinc         Float      @default(0)
+  imageUrl          String?
+  imageCloudinaryId String?
+  notes             String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  foods             MealFood[]
+
+  @@index([userId])
+  @@index([date])
+}
+
+model MealFood {
+  id              String     @id @default(cuid())
+  mealId          String
+  meal            Meal       @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  foodId          String
+  food            Food       @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  quantity        Float
+  unit            String
+  calories        Float      @default(0)
+  protein         Float      @default(0)
+  carbs           Float      @default(0)
+  fat             Float      @default(0)
+  fiber           Float      @default(0)
+  sugar           Float      @default(0)
+  sodium          Float      @default(0)
+  createdAt       DateTime   @default(now())
+
+  @@unique([mealId, foodId])
+  @@index([mealId])
+  @@index([foodId])
+}
+
+model Food {
+  id                String          @id @default(cuid())
+  name              String
+  usdaFdcId         String?
+  brand             String?
+  servingSize       Float
+  servingUnit       String
+  caloriesPerServing Float          @default(0)
+  proteinPerServing Float           @default(0)
+  carbsPerServing   Float           @default(0)
+  fatPerServing     Float           @default(0)
+  fiberPerServing   Float           @default(0)
+  sugarPerServing   Float           @default(0)
+  sodiumPerServing  Float           @default(0)
+  potassiumPerServing Float         @default(0)
+  magnesiumPerServing Float         @default(0)
+  calciumPerServing Float           @default(0)
+  ironPerServing    Float           @default(0)
+  zincPerServing    Float           @default(0)
+  vitamins          Json?
+  micronutrients    Json?
+  source            String
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  meals             MealFood[]
+
+  @@index([name])
+  @@index([usdaFdcId])
+}
+
+model WeightLog {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weight    Float
+  date      DateTime
+  notes     String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([date])
+}
+
+model DailyGoal {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date            DateTime
+  calorieGoal     Int
+  proteinGoal     Float
+  carbGoal        Float
+  fatGoal         Float
+  waterGoal       Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
+model AIInsight {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date       DateTime
+  insight    String
+  category   String
+  severity   String
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([date])
+}
+
+model Achievement {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  description String
+  badge     String
+  unlockedAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model MealReminder {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mealType  String
+  time      String
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
