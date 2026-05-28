@@ -1,0 +1,3 @@
+# NutriAI - Setup Instructions
+
+Initializing project structure...
